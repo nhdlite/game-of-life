@@ -1,0 +1,19 @@
+{
+  "name": "game-of-life",
+  "version": "1.0.0",
+  "description": "An implementation of James Conway's game of life simulator.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nhdlite/game-of-life.git"
+  },
+  "author": "Nate Dessert",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nhdlite/game-of-life/issues"
+  },
+  "homepage": "https://github.com/nhdlite/game-of-life#readme"
+}
