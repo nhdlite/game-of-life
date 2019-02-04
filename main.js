@@ -11,8 +11,8 @@ const initSimulation = () => {
             // let isAlive = Math.floor(Math.random() * 10) > 4 && i !== 0 && i !== bufferWidth - 1 && j !== 0 && j !== bufferHeight - 1 ? true : false;
             let isAlive = false;
             gameBoard[i][j] = {
-                positionX: i,
-                positionY: j,
+                positionX: i - 1,
+                positionY: j - 1,
                 isAlive: isAlive,
                 wasAlive: isAlive,
             }
@@ -73,23 +73,22 @@ const update = () => {
 const drawCanvas = () => {
     var c=document.getElementById("gameOfLifeView");
     var ctx=c.getContext("2d");
-
-    gameBoard.forEach((row) => {
-        row.forEach((entry) => {
+    for(let i = 1; i <= width; i++) {
+        for(let j = 1; j <= height; j++) {
             const rectSize = 50;
 
-            var rectXPos = entry.positionX * rectSize;
-            var rectYPos = entry.positionY * rectSize;
+            var rectXPos = gameBoard[i][j].positionX * rectSize;
+            var rectYPos = gameBoard[i][j].positionY * rectSize;
             var rectWidth = rectSize;
             var rectHeight = rectSize;
 
             ctx.fillStyle='#000';
             ctx.fillRect(rectXPos - (1), rectYPos - (1), rectWidth + (1 * 2), rectHeight + (1 * 2));
 
-            ctx.fillStyle = entry.isAlive ? '#FF0' : '#0F0';
+            ctx.fillStyle = gameBoard[i][j].isAlive ? '#FF0' : '#0F0';
             ctx.fillRect(rectXPos, rectYPos, rectWidth, rectHeight);
-        });
-    });
+        }
+    }
 }
 
 const gameLoop = () => {
@@ -97,9 +96,19 @@ const gameLoop = () => {
     drawCanvas();
 }
 
+const on_canvas_click = (ev) => {
+    var c = document.getElementById("gameOfLifeView");
+    var x = ev.clientX - c.offsetLeft;
+    var y = ev.clientY - c.offsetTop;
 
+    // ... x,y are the click coordinates relative to the
+    // canvas itself
+    window.alert(`Hello ${x}, ${y}`)
+}
 
 window.onload = () => {
+    var c = document.getElementById("gameOfLifeView");
+    c.addEventListener('click', on_canvas_click, false); 
     initSimulation();
     setFrameSpeed(1, gameLoop);
 };
