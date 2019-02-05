@@ -1,12 +1,12 @@
 let gameBoard = {};
 const width = 10;
 const height = 10;
+const rectSize = 50;
 
 const initSimulation = () => {
     // Draw the initial board
     var canvas =document.getElementById("gameOfLifeView");
     var context = canvas.getContext("2d");
-    const rectSize = 50;
     let totalPxHeight = height * rectSize;
     let totalPxWidth = width * rectSize;
     
@@ -102,7 +102,6 @@ const update = () => {
 const drawCanvas = () => {
     var canvas =document.getElementById("gameOfLifeView");
     var context = canvas.getContext("2d");
-    const rectSize = 50;
 
     for(let key in gameBoard) {
         const data = gameBoard[key];
@@ -112,7 +111,10 @@ const drawCanvas = () => {
 
         if(data.isAlive) {
             context.fillStyle =  '#00F';
-            context.fillRect(data.x, data.y, rectSize, rectSize);
+            context.fillRect(data.x, data.y, rectSize - 2, rectSize - 2);
+        } else {
+            context.fillStyle =  '#F00';
+            context.fillRect(data.x, data.y, rectSize - 2, rectSize - 2);
         }
     }
 
@@ -128,10 +130,31 @@ const on_canvas_click = (ev) => {
     var c = document.getElementById("gameOfLifeView");
     var x = ev.clientX - c.offsetLeft;
     var y = ev.clientY - c.offsetTop;
+    console.log(`Hello ${x}, ${y}`);
+
+    for(let i = x; i % rectSize !== 0; i--) {
+        x = i;
+    }
+    for(let i = y; i % rectSize !== 0; i--) {
+        y = i;
+    }
+    y--;
+    x--;
+    console.log(`Goodbye ${x}, ${y}`)
+    if (gameBoard[`${x}_${y}`]) {
+        gameBoard[`${x}_${y}`].isAlive = !gameBoard[`${x}_${y}`].isAlive;
+        gameBoard[`${x}_${y}`].wasAlive = gameBoard[`${x}_${y}`].isAlive;
+
+    } else {
+        gameBoard[`${x}_${y}`] = {
+            wasAlive: true,
+            isAlive: true,
+        }
+    }
 
     // ... x,y are the click coordinates relative to the
     // canvas itself
-    window.alert(`Hello ${x}, ${y}`)
+    
 }
 
 window.onload = () => {
