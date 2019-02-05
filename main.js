@@ -1,76 +1,9 @@
-let gameBoard = [];
+let gameBoard = {};
 const width = 10;
 const height = 10;
-const bufferWidth = 12;
-const bufferHeight = 12;
+
 const initSimulation = () => {
-    for(let i = 0; i < bufferWidth; i++) {
-        gameBoard.push([]);
-        for(let j = 0; j < bufferHeight; j++) {
-            gameBoard[i].push([]);
-            // let isAlive = Math.floor(Math.random() * 10) > 4 && i !== 0 && i !== bufferWidth - 1 && j !== 0 && j !== bufferHeight - 1 ? true : false;
-            let isAlive = false;
-            gameBoard[i][j] = {
-                positionX: i - 1,
-                positionY: j - 1,
-                isAlive: isAlive,
-                wasAlive: isAlive,
-            }
-        }
-    }
-    console.log(gameBoard);
-    gameBoard[5][4].isAlive = true;
-    gameBoard[5][5].isAlive = true;
-    gameBoard[5][6].isAlive = true;
-    gameBoard[6][6].isAlive = true;
-
-    return gameBoard;
-}
-
-const setFrameSpeed = (fps, cb) => {
-    setInterval(cb,1000/fps);
-}
-
-const update = () => {
-    for(let i = 1; i <= width; i++) {
-        for(let j = 1; j <= height; j++) {
-            gameBoard[i][j].wasAlive = gameBoard[i][j].isAlive;
-        }
-    }
-
-    for(let i = 1; i <= width; i++) {
-        for(let j = 1; j <= height; j++) {
-            let liveNeighborCount = 0;
-            // Check top row;
-            liveNeighborCount += gameBoard[i-1][j-1].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i-1][j].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i-1][j+1].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i][j-1].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i][j+1].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i+1][j-1].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i+1][j].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i+1][j+1].wasAlive ? 1 : 0;
-
-            if (gameBoard[i][j].isAlive && liveNeighborCount < 2) {
-                gameBoard[i][j].isAlive = false;
-            }
-
-            if (gameBoard[i][j].isAlive && liveNeighborCount > 3) {
-                gameBoard[i][j].isAlive = false;
-            }
-
-            if (gameBoard[i][j].isAlive && liveNeighborCount === 2 || liveNeighborCount === 3) {
-                // Do nothing
-            }
-
-            if (!gameBoard[i][j].isAlive && liveNeighborCount === 3) {
-                gameBoard[i][j].isAlive = true;
-            }
-        }
-    }
-}
-
-const drawCanvas = () => {
+    // Draw the initial board
     var canvas =document.getElementById("gameOfLifeView");
     var context = canvas.getContext("2d");
     const rectSize = 50;
@@ -108,24 +41,82 @@ const drawCanvas = () => {
         }
     }
 
+    // Set initial positions on the gameboard
+    gameBoard['50_100'] = {
+        isAlive: true,
+        wasAlive: true,
+    };
+    gameBoard['200_400'] = {
+        isAlive: true,
+        wasAlive: true,
+    };
+}
+
+const setFrameSpeed = (fps, cb) => {
+    setInterval(cb,1000/fps);
+}
+
+const update = () => {
+    // Please implement me
+    console.log(gameBoard);
     /*
     for(let i = 1; i <= width; i++) {
         for(let j = 1; j <= height; j++) {
-            const rectSize = 50;
+            gameBoard[i][j].wasAlive = gameBoard[i][j].isAlive;
+        }
+    }
 
-            var rectXPos = gameBoard[i][j].positionX * rectSize;
-            var rectYPos = gameBoard[i][j].positionY * rectSize;
-            var rectWidth = rectSize;
-            var rectHeight = rectSize;
+    for(let i = 1; i <= width; i++) {
+        for(let j = 1; j <= height; j++) {
+            let liveNeighborCount = 0;
+            // Check top row;
+            liveNeighborCount += gameBoard[i-1][j-1].wasAlive ? 1 : 0;
+            liveNeighborCount += gameBoard[i-1][j].wasAlive ? 1 : 0;
+            liveNeighborCount += gameBoard[i-1][j+1].wasAlive ? 1 : 0;
+            liveNeighborCount += gameBoard[i][j-1].wasAlive ? 1 : 0;
+            liveNeighborCount += gameBoard[i][j+1].wasAlive ? 1 : 0;
+            liveNeighborCount += gameBoard[i+1][j-1].wasAlive ? 1 : 0;
+            liveNeighborCount += gameBoard[i+1][j].wasAlive ? 1 : 0;
+            liveNeighborCount += gameBoard[i+1][j+1].wasAlive ? 1 : 0;
 
-            ctx.fillStyle='#000';
-            ctx.fillRect(rectXPos - (1), rectYPos - (1), rectWidth + (1 * 2), rectHeight + (1 * 2));
+            if (gameBoard[i][j].isAlive && liveNeighborCount < 2) {
+                gameBoard[i][j].isAlive = false;
+            }
 
-            ctx.fillStyle = gameBoard[i][j].isAlive ? '#FF0' : '#0F0';
-            ctx.fillRect(rectXPos, rectYPos, rectWidth, rectHeight);
+            if (gameBoard[i][j].isAlive && liveNeighborCount > 3) {
+                gameBoard[i][j].isAlive = false;
+            }
+
+            if (gameBoard[i][j].isAlive && liveNeighborCount === 2 || liveNeighborCount === 3) {
+                // Do nothing
+            }
+
+            if (!gameBoard[i][j].isAlive && liveNeighborCount === 3) {
+                gameBoard[i][j].isAlive = true;
+            }
         }
     }
     */
+}
+
+const drawCanvas = () => {
+    var canvas =document.getElementById("gameOfLifeView");
+    var context = canvas.getContext("2d");
+    const rectSize = 50;
+
+    for(let key in gameBoard) {
+        const data = gameBoard[key];
+        const coordinates = key.split('_');
+        data.x = coordinates[0];
+        data.y = coordinates[1];
+
+        if(data.isAlive) {
+            context.fillStyle =  '#00F';
+            context.fillRect(data.x, data.y, rectSize, rectSize);
+        }
+    }
+
+    // Future improvement: Just draw long horizontal and vertical lines instead of little insertions. The entire game space can be filled in before starting.
 }
 
 const gameLoop = () => {
