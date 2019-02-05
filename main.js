@@ -71,8 +71,44 @@ const update = () => {
 }
 
 const drawCanvas = () => {
-    var c=document.getElementById("gameOfLifeView");
-    var ctx=c.getContext("2d");
+    var canvas =document.getElementById("gameOfLifeView");
+    var context = canvas.getContext("2d");
+    const rectSize = 50;
+    let totalPxHeight = height * rectSize;
+    let totalPxWidth = width * rectSize;
+    
+    // Draw horizontal line on the x and y axis
+    context.beginPath();
+    context.fillStyle = '#000';
+    context.moveTo(0, 0);
+    context.lineTo(totalPxWidth, 0);
+    context.stroke();
+
+    context.moveTo(0,0);
+    context.lineTo(0, totalPxHeight);
+    context.stroke();
+
+    for(let i = 1; i <= width; i++) {
+        for(let j = 1; j <= height; j++) {
+            context.fillStyle = '#000';
+            const xDrawPosition = i * rectSize;
+            const yDrawPosition = j * rectSize;
+
+            context.moveTo(xDrawPosition, yDrawPosition);
+            context.lineTo(xDrawPosition - rectSize, yDrawPosition);
+            context.stroke();
+
+            context.moveTo(xDrawPosition, yDrawPosition);
+            context.lineTo(xDrawPosition, yDrawPosition - rectSize);
+            context.stroke();
+            
+            if(i !== 10 && j !== 10);
+            context.fillStyle =  (i === 10 && j === 10) ? '#0F0' : '#F00';
+            context.fillRect(xDrawPosition - 1, yDrawPosition - 1, -1 * (rectSize - 2), -1 * (rectSize - 2));
+        }
+    }
+
+    /*
     for(let i = 1; i <= width; i++) {
         for(let j = 1; j <= height; j++) {
             const rectSize = 50;
@@ -89,6 +125,7 @@ const drawCanvas = () => {
             ctx.fillRect(rectXPos, rectYPos, rectWidth, rectHeight);
         }
     }
+    */
 }
 
 const gameLoop = () => {
