@@ -191,6 +191,9 @@ const gameLoop = () => {
         update(game);
         game.generationCounter++;
         drawCanvas(game);
+
+        let gc = document.getElementById('generationCounter');
+        gc.innerText = game.generationCounter;
     }
 }
 
