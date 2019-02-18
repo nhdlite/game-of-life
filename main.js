@@ -1,13 +1,44 @@
-let gameBoard = {};
-const width = 10;
-const height = 10;
-const rectSize = 50;
-let gameStarted = false;
-let generationCounter = 1;
+function Game() {
+    let gameBoard = {};
+    const width = 10;
+    const height = 10;
+    const rectSize = 50;
 
-const drawEmptyGrid = () => {
-    var canvas = document.getElementById("gameOfLifeView");
-    var context = canvas.getContext("2d");
+    let gameStarted = false;
+    let generationCounter = 1;
+
+    const startGameLoop = (fps, cb) => {
+        setInterval(cb,1000/fps);
+    }
+
+    return {
+        gameBoard,
+        width,
+        height,
+        rectSize,
+        gameStarted,
+        generationCounter,
+        startGameLoop
+    }
+}
+
+const gameFactory = (() => {
+    const getGame = () => {
+        if(!this.game) {
+            this.game = new Game();
+        }
+
+        return this.game;
+    }
+
+    return {
+        getGame
+    }
+})();
+
+const drawEmptyGrid = (canvas, game) => {
+    let { height, width, rectSize } = game;
+    let context = canvas.getContext("2d");
     let totalPxHeight = height * rectSize;
     let totalPxWidth = width * rectSize;
     context.lineWidth = 1;
@@ -29,14 +60,10 @@ const drawEmptyGrid = () => {
     }
 }
 
-const setFrameSpeed = (fps, cb) => {
-    setInterval(cb,1000/fps);
-}
-
-const update = () => {
-    // Please implement me
-    console.log(gameBoard);
+const update = (game) => {
+    let { gameBoard, rectSize } = game;
     let updatedGameBoard = gameBoard;
+
     for(key in gameBoard) {
         // Get x and y coordinates
         const coordinates = key.split('_');
@@ -124,7 +151,7 @@ const update = () => {
     }
 }
 
-const drawCell = (x, y, isAlive) => {
+const drawCell = (x, y, isAlive, rectSize) => {
     let canvas =document.getElementById("gameOfLifeView");
     let context = canvas.getContext("2d");
 
@@ -137,8 +164,9 @@ const drawCell = (x, y, isAlive) => {
     }
 }
 
-const drawCanvas = () => {
-    let canvas =document.getElementById("gameOfLifeView");
+const drawCanvas = (game) => {
+    let { gameBoard, rectSize } = game;
+    let canvas = document.getElementById("gameOfLifeView");
     let context = canvas.getContext("2d");
 
     for(let key in gameBoard) {
@@ -158,14 +186,17 @@ const drawCanvas = () => {
 }
 
 const gameLoop = () => {
-    if (gameStarted) {
-        update();
-        generationCounter++;
-        drawCanvas();
+    const game = gameFactory.getGame();
+    if (game.gameStarted) {
+        update(game);
+        game.generationCounter++;
+        drawCanvas(game);
     }
 }
 
 const on_canvas_click = (ev) => {
+    const game = gameFactory.getGame();
+    let { rectSize, gameBoard } = game;
     let c = document.getElementById("gameOfLifeView");
     let x = ev.clientX - c.offsetLeft;
     let y = ev.clientY - c.offsetTop;
@@ -182,26 +213,28 @@ const on_canvas_click = (ev) => {
     if (gameBoard[`${x}_${y}`]) {
         gameBoard[`${x}_${y}`].isAlive = !gameBoard[`${x}_${y}`].isAlive;
         gameBoard[`${x}_${y}`].wasAlive = gameBoard[`${x}_${y}`].isAlive;
-        drawCell(x, y, gameBoard[`${x}_${y}`].isAlive);
+        drawCell(x, y, gameBoard[`${x}_${y}`].isAlive, rectSize);
 
     } else {
         gameBoard[`${x}_${y}`] = {
             wasAlive: true,
             isAlive: true,
         }
-        drawCell(x, y, true);
+        drawCell(x, y, true, rectSize);
     }
 }
 
 window.onload = () => {
-    var c = document.getElementById("gameOfLifeView");
-    c.addEventListener('click', on_canvas_click, false); 
+    const game = gameFactory.getGame();
+    var canvas = document.getElementById("gameOfLifeView");
+    canvas.addEventListener('click', on_canvas_click, false); 
 
     let startButton = document.getElementById('startButton');
     startButton.addEventListener('click', ()=> {
-        gameStarted = true;
+        game.gameStarted = true;
     });
 
-    drawEmptyGrid();
-    setFrameSpeed(1, gameLoop);
+    drawEmptyGrid(canvas, game);
+    
+    game.startGameLoop(1, gameLoop);
 };
