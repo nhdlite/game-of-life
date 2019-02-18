@@ -2,54 +2,31 @@ let gameBoard = {};
 const width = 10;
 const height = 10;
 const rectSize = 50;
+let gameStarted = false;
+let generationCounter = 1;
 
-const initSimulation = () => {
-    // Draw the initial board
-    var canvas =document.getElementById("gameOfLifeView");
+const drawEmptyGrid = () => {
+    var canvas = document.getElementById("gameOfLifeView");
     var context = canvas.getContext("2d");
     let totalPxHeight = height * rectSize;
     let totalPxWidth = width * rectSize;
-    
-    // Draw horizontal line on the x and y axis
-    context.beginPath();
-    context.fillStyle = '#000';
-    context.moveTo(0, 0);
-    context.lineTo(totalPxWidth, 0);
-    context.stroke();
+    context.lineWidth = 1;
 
-    context.moveTo(0,0);
-    context.lineTo(0, totalPxHeight);
-    context.stroke();
-
-    for(let i = 1; i <= width; i++) {
-        for(let j = 1; j <= height; j++) {
-            context.fillStyle = '#000';
-            const xDrawPosition = i * rectSize;
-            const yDrawPosition = j * rectSize;
-
-            context.moveTo(xDrawPosition, yDrawPosition);
-            context.lineTo(xDrawPosition - rectSize, yDrawPosition);
-            context.stroke();
-
-            context.moveTo(xDrawPosition, yDrawPosition);
-            context.lineTo(xDrawPosition, yDrawPosition - rectSize);
-            context.stroke();
-            
-            if(i !== 10 && j !== 10);
-            context.fillStyle =  (i === 10 && j === 10) ? '#0F0' : '#F00';
-            context.fillRect(xDrawPosition - 1, yDrawPosition - 1, -1 * (rectSize - 2), -1 * (rectSize - 2));
-        }
+    for(let i = 0; i <= width; i++) {
+        context.fillStyle = '#000';
+        const xDrawPosition = i * rectSize;
+        context.moveTo(xDrawPosition, 0);
+        context.lineTo(xDrawPosition, totalPxHeight);
+        context.stroke();
     }
 
-    // Set initial positions on the gameboard
-    gameBoard['50_100'] = {
-        isAlive: true,
-        wasAlive: true,
-    };
-    gameBoard['200_400'] = {
-        isAlive: true,
-        wasAlive: true,
-    };
+    for(let i = 0; i <= height; i++) {
+        context.fillStyle = '#000';
+        const yDrawPosition = i * rectSize;
+        context.moveTo(0, yDrawPosition);
+        context.lineTo(totalPxWidth, yDrawPosition);
+        context.stroke();
+    }
 }
 
 const setFrameSpeed = (fps, cb) => {
@@ -59,78 +36,139 @@ const setFrameSpeed = (fps, cb) => {
 const update = () => {
     // Please implement me
     console.log(gameBoard);
-    /*
-    for(let i = 1; i <= width; i++) {
-        for(let j = 1; j <= height; j++) {
-            gameBoard[i][j].wasAlive = gameBoard[i][j].isAlive;
+    let updatedGameBoard = gameBoard;
+    for(key in gameBoard) {
+        // Get x and y coordinates
+        const coordinates = key.split('_');
+        const x = parseInt(coordinates[0]);
+        const y = parseInt(coordinates[1]);
+
+        // Update values
+        updatedGameBoard[key].wasAlive = gameBoard[key].isAlive;
+
+        // Add neighbors if they do not exist
+        // Top Row
+        if(!gameBoard[`${x-rectSize}_${y-rectSize}`]) {
+            updatedGameBoard[`${x-rectSize}_${y-rectSize}`] = { isAlive: false, wasAlive: false };
+        }
+
+        if(!gameBoard[`${x}_${y-rectSize}`]) {
+            updatedGameBoard[`${x}_${y-rectSize}`] = { isAlive: false, wasAlive: false };
+        }
+
+        if(!gameBoard[`${x+rectSize}_${y-rectSize}`]) {
+            updatedGameBoard[`${x+rectSize}_${y-rectSize}`] = { isAlive: false, wasAlive: false };
+        }
+
+        // Next To
+        if(!gameBoard[`${x-rectSize}_${y}`]) {
+            updatedGameBoard[`${x-rectSize}_${y}`] = { isAlive: false, wasAlive: false };
+        }
+
+        if(!gameBoard[`${x+rectSize}_${y-rectSize}`]) {
+            updatedGameBoard[`${x+rectSize}_${y}`] = { isAlive: false, wasAlive: false };
+        }
+
+        // Below
+        if(!gameBoard[`${x-rectSize}_${y+rectSize}`]) {
+            updatedGameBoard[`${x-rectSize}_${y+rectSize}`] = { isAlive: false, wasAlive: false };
+        }
+
+        if(!gameBoard[`${x}_${y+rectSize}`]) {
+            updatedGameBoard[`${x}_${y+rectSize}`] = { isAlive: false, wasAlive: false };
+        }
+
+        if(!gameBoard[`${x+rectSize}_${y+rectSize}`]) {
+            updatedGameBoard[`${x+rectSize}_${y+rectSize}`] = { isAlive: false, wasAlive: false };
         }
     }
+    gameBoard = updatedGameBoard;
 
-    for(let i = 1; i <= width; i++) {
-        for(let j = 1; j <= height; j++) {
-            let liveNeighborCount = 0;
-            // Check top row;
-            liveNeighborCount += gameBoard[i-1][j-1].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i-1][j].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i-1][j+1].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i][j-1].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i][j+1].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i+1][j-1].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i+1][j].wasAlive ? 1 : 0;
-            liveNeighborCount += gameBoard[i+1][j+1].wasAlive ? 1 : 0;
+    for(key in gameBoard) {
+        // Get x and y coordinates
+        const coordinates = key.split('_');
+        const x = parseInt(coordinates[0]);
+        const y = parseInt(coordinates[1]);
 
-            if (gameBoard[i][j].isAlive && liveNeighborCount < 2) {
-                gameBoard[i][j].isAlive = false;
-            }
+        let liveNeighborCount = 0;
 
-            if (gameBoard[i][j].isAlive && liveNeighborCount > 3) {
-                gameBoard[i][j].isAlive = false;
-            }
+        // Above
+        liveNeighborCount += gameBoard[`${x-rectSize}_${y-rectSize}`] && gameBoard[`${x-rectSize}_${y-rectSize}`].wasAlive ? 1 : 0;
+        liveNeighborCount += gameBoard[`${x}_${y-rectSize}`] && gameBoard[`${x}_${y-rectSize}`].wasAlive ? 1 : 0;
+        liveNeighborCount += gameBoard[`${x+rectSize}_${y-rectSize}`] && gameBoard[`${x+rectSize}_${y-rectSize}`].wasAlive ? 1 : 0;
 
-            if (gameBoard[i][j].isAlive && liveNeighborCount === 2 || liveNeighborCount === 3) {
-                // Do nothing
-            }
+        //Side
+        liveNeighborCount += gameBoard[`${x-rectSize}_${y}`] && gameBoard[`${x-rectSize}_${y}`].wasAlive ? 1 : 0;
+        liveNeighborCount += gameBoard[`${x+rectSize}_${y}`] && gameBoard[`${x+rectSize}_${y}`].wasAlive ? 1 : 0;
 
-            if (!gameBoard[i][j].isAlive && liveNeighborCount === 3) {
-                gameBoard[i][j].isAlive = true;
-            }
+        //Below
+        liveNeighborCount += gameBoard[`${x-rectSize}_${y+rectSize}`] && gameBoard[`${x-rectSize}_${y+rectSize}`].wasAlive ? 1 : 0;
+        liveNeighborCount += gameBoard[`${x}_${y+rectSize}`] && gameBoard[`${x}_${y+rectSize}`].wasAlive ? 1 : 0;
+        liveNeighborCount += gameBoard[`${x+rectSize}_${y+rectSize}`] && gameBoard[`${x+rectSize}_${y+rectSize}`].wasAlive ? 1 : 0;
+        
+        if (gameBoard[`${x}_${y}`].isAlive && liveNeighborCount < 2) {
+            gameBoard[`${x}_${y}`].isAlive = false;
+        }
+
+        if (gameBoard[`${x}_${y}`].isAlive && liveNeighborCount > 3) {
+            gameBoard[`${x}_${y}`].isAlive = false;
+        }
+
+        if (gameBoard[`${x}_${y}`].isAlive && liveNeighborCount === 2 || liveNeighborCount === 3) {
+            // Do nothing
+        }
+
+        if (!gameBoard[`${x}_${y}`].isAlive && liveNeighborCount === 3) {
+            gameBoard[`${x}_${y}`].isAlive = true;
         }
     }
-    */
+}
+
+const drawCell = (x, y, isAlive) => {
+    let canvas =document.getElementById("gameOfLifeView");
+    let context = canvas.getContext("2d");
+
+    if(isAlive) {
+        context.fillStyle =  '#00F';
+        context.fillRect(x + 1, y + 1, rectSize - 2, rectSize - 2);
+    } else {
+        context.fillStyle = '#FFF';
+        context.fillRect(x + 1, y + 1, rectSize - 2, rectSize - 2);
+    }
 }
 
 const drawCanvas = () => {
-    var canvas =document.getElementById("gameOfLifeView");
-    var context = canvas.getContext("2d");
+    let canvas =document.getElementById("gameOfLifeView");
+    let context = canvas.getContext("2d");
 
     for(let key in gameBoard) {
         const data = gameBoard[key];
         const coordinates = key.split('_');
-        data.x = coordinates[0];
-        data.y = coordinates[1];
+        let x = parseInt(coordinates[0]);
+        let y = parseInt(coordinates[1]);
 
         if(data.isAlive) {
             context.fillStyle =  '#00F';
-            context.fillRect(data.x, data.y, rectSize - 2, rectSize - 2);
+            context.fillRect(x + 1, y + 1, rectSize - 2, rectSize - 2);
         } else {
-            context.fillStyle =  '#F00';
-            context.fillRect(data.x, data.y, rectSize - 2, rectSize - 2);
+            context.fillStyle =  '#FFF';
+            context.fillRect(x + 1, y + 1, rectSize - 2, rectSize - 2);
         }
     }
-
-    // Future improvement: Just draw long horizontal and vertical lines instead of little insertions. The entire game space can be filled in before starting.
 }
 
 const gameLoop = () => {
-    update();
-    drawCanvas();
+    if (gameStarted) {
+        update();
+        generationCounter++;
+        drawCanvas();
+    }
 }
 
 const on_canvas_click = (ev) => {
-    var c = document.getElementById("gameOfLifeView");
-    var x = ev.clientX - c.offsetLeft;
-    var y = ev.clientY - c.offsetTop;
-    console.log(`Hello ${x}, ${y}`);
+    let c = document.getElementById("gameOfLifeView");
+    let x = ev.clientX - c.offsetLeft;
+    let y = ev.clientY - c.offsetTop;
 
     for(let i = x; i % rectSize !== 0; i--) {
         x = i;
@@ -140,26 +178,30 @@ const on_canvas_click = (ev) => {
     }
     y--;
     x--;
-    console.log(`Goodbye ${x}, ${y}`)
+
     if (gameBoard[`${x}_${y}`]) {
         gameBoard[`${x}_${y}`].isAlive = !gameBoard[`${x}_${y}`].isAlive;
         gameBoard[`${x}_${y}`].wasAlive = gameBoard[`${x}_${y}`].isAlive;
+        drawCell(x, y, gameBoard[`${x}_${y}`].isAlive);
 
     } else {
         gameBoard[`${x}_${y}`] = {
             wasAlive: true,
             isAlive: true,
         }
+        drawCell(x, y, true);
     }
-
-    // ... x,y are the click coordinates relative to the
-    // canvas itself
-    
 }
 
 window.onload = () => {
     var c = document.getElementById("gameOfLifeView");
     c.addEventListener('click', on_canvas_click, false); 
-    initSimulation();
+
+    let startButton = document.getElementById('startButton');
+    startButton.addEventListener('click', ()=> {
+        gameStarted = true;
+    });
+
+    drawEmptyGrid();
     setFrameSpeed(1, gameLoop);
 };
